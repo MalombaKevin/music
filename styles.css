@@ -175,10 +175,31 @@ main {
 .play::before { content: ''; position: absolute; inset: 0; background: rgba(0,0,0,.45); transition: background .2s; }
 .track.playing .play::before, .play:hover::before { background: color-mix(in srgb, var(--c) 75%, transparent); }
 .play svg { position: relative; width: 18px; height: 18px; }
+.track > div { min-width: 0; } /* lets long names truncate inside the grid */
+.track h4, .track p { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .track h4 { font-weight: 600; font-size: .98rem; }
 .track p { color: var(--muted); font-size: .82rem; }
-.progress { height: 3px; background: var(--line); border-radius: 3px; margin-top: 8px; overflow: hidden; }
-.progress i { display: block; height: 100%; width: 0; background: var(--c); }
+
+/* seekable progress bar: 6px track, larger invisible hit area, knob on hover/drag */
+.progress {
+  position: relative; height: 6px; margin-top: 10px; border-radius: 6px;
+  background: rgba(255,255,255,.12); cursor: pointer; touch-action: none;
+}
+.progress::before { content: ''; position: absolute; inset: -9px 0; } /* easier to grab */
+.progress i {
+  position: relative; display: block; height: 100%; width: 0; max-width: 100%;
+  border-radius: inherit; background: var(--c);
+}
+.progress i::after {
+  content: ''; position: absolute; right: -7px; top: 50%;
+  width: 14px; height: 14px; border-radius: 50%; background: #fff;
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--c) 45%, transparent);
+  transform: translateY(-50%) scale(0); transition: transform .15s;
+}
+.track.playing .progress i::after,
+.progress:hover i::after,
+.progress.dragging i::after { transform: translateY(-50%) scale(1); }
+.progress:focus-visible { outline: 2px solid var(--c); outline-offset: 4px; }
 .time { color: var(--muted); font-size: .82rem; font-variant-numeric: tabular-nums; }
 
 /* video grid */

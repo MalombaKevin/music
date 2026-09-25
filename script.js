@@ -12,7 +12,9 @@ const NAV = [
   { href: 'discover.html', label: 'KWM', icon: 'discover', img: 'images/kevin.jpg', initials: 'KM' },
 ];
 
-const page = location.pathname.split('/').pop() || 'index.html';
+// Works with and without ".html" in the URL (vercel.json has cleanUrls on)
+let page = location.pathname.split('/').pop() || 'index.html';
+if (!page.endsWith('.html')) page += '.html';
 const svg = key =>
   `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${ICONS[key]}</svg>`;
 
@@ -91,7 +93,61 @@ tracks.forEach(track => {
   btn.style.backgroundImage = `url(https://i.ytimg.com/vi/${track.dataset.yt}/mqdefault.jpg)`;
   btn.innerHTML = ICON_PLAY;
   btn.addEventListener('click', () => playTrack(track));
+  track.querySelector('h4').title = track.querySelector('h4').textContent; // full name on hover
+  initSeek(track);
 });
+
+// Progress bar: click or drag to seek (starts the track if it isn't playing yet)
+let dragging = false;
+let pendingSeek = null; // ratio to jump to once a newly started track is playing
+
+function initSeek(track) {
+  const bar = track.querySelector('.progress');
+  bar.setAttribute('role', 'slider');
+  bar.setAttribute('aria-label', 'Seek');
+  bar.tabIndex = 0;
+  const ratioAt = e => {
+    const r = bar.getBoundingClientRect();
+    return Math.min(1, Math.max(0, (e.clientX - r.left) / r.width));
+  };
+  const preview = ratio => { bar.querySelector('i').style.width = ratio * 100 + '%'; };
+
+  bar.addEventListener('pointerdown', e => {
+    if (!audioReady) return showToast('Player is loading…');
+    dragging = true;
+    bar.classList.add('dragging');
+    bar.setPointerCapture(e.pointerId);
+    preview(ratioAt(e));
+  });
+  bar.addEventListener('pointermove', e => { if (dragging) preview(ratioAt(e)); });
+  const release = e => {
+    if (!dragging) return;
+    dragging = false;
+    bar.classList.remove('dragging');
+    seekTo(track, ratioAt(e));
+  };
+  bar.addEventListener('pointerup', release);
+  bar.addEventListener('pointercancel', () => { dragging = false; bar.classList.remove('dragging'); });
+
+  bar.addEventListener('keydown', e => {
+    if (current !== track || !['ArrowLeft', 'ArrowRight'].includes(e.key)) return;
+    e.preventDefault();
+    audioPlayer.seekTo(audioPlayer.getCurrentTime() + (e.key === 'ArrowRight' ? 5 : -5), true);
+    updateProgress();
+  });
+}
+
+function seekTo(track, ratio) {
+  if (current !== track) {
+    pendingSeek = ratio;
+    playTrack(track);
+    return;
+  }
+  const d = audioPlayer.getDuration();
+  if (d) audioPlayer.seekTo(ratio * d, true);
+  if (audioPlayer.getPlayerState() !== 1) audioPlayer.playVideo();
+  updateProgress();
+}
 
 function playTrack(track) {
   if (!audioReady) return showToast('Player is loading…');
@@ -113,7 +169,7 @@ function resetTrack(track) {
 }
 
 function updateProgress() {
-  if (!current) return;
+  if (!current || dragging) return;
   const t = audioPlayer.getCurrentTime();
   const d = audioPlayer.getDuration();
   current.querySelector('.progress i').style.width = d ? (t / d) * 100 + '%' : '0';
@@ -127,6 +183,10 @@ function onAudioState(e) {
     case 1: // playing
       pauseOthers(audioPlayer);
       btn.innerHTML = ICON_PAUSE;
+      if (pendingSeek !== null) {
+        audioPlayer.seekTo(pendingSeek * audioPlayer.getDuration(), true);
+        pendingSeek = null;
+      }
       clearInterval(tick);
       tick = setInterval(updateProgress, 500);
       break;
