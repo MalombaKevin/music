@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Dana — Kwara &amp; Dana Media</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="header">
+    <a href="index.html" class="brand"><span class="brand-mark">K&amp;D<img src="images/kwara-dana.jpg" alt="" onerror="this.remove()"></span> Kwara &amp; Dana</a>
+    <nav class="nav"></nav>
+  </header>
+
+  <main class="artist dana">
+    <div class="artist-head">
+      <div class="artist-id">
+        <div class="avatar"><span>D</span><img src="images/dana.jpg" alt="Dana" onerror="this.remove()"></div>
+        <div>
+          <span class="verified"><svg viewBox="0 0 24 24" fill="currentColor"><path d="m12 2 2.4 2.2 3.2-.4.9 3.1 2.8 1.6-1.2 3 1.2 3-2.8 1.6-.9 3.1-3.2-.4L12 22l-2.4-2.2-3.2.4-.9-3.1-2.8-1.6 1.2-3-1.2-3 2.8-1.6.9-3.1 3.2.4z"/><path d="m8.5 12 2.5 2.5 4.5-5" stroke="#0a0a0c" stroke-width="2" fill="none"/></svg> Super Grandma</span>
+          <h1 class="title">Dana's Music</h1>
+        </div>
+      </div>
+      <div class="toggle" data-tab="audio">
+        <span class="pill"></span>
+        <button class="on" data-tab="audio">Audio</button>
+        <button data-tab="music">Video</button>
+      </div>
+    </div>
+
+    <!-- AUDIO: each data-yt is a YouTube video ID played as audio only -->
+    <section class="panel show" id="audio">
+      <ul class="tracks">
+        <li class="track" data-yt="D7Vk6L5k2cM"><button class="play" aria-label="Play Love FM : Kenyan"></button><div><h4>1. Love FM : Kenyan</h4><p>Kwara &amp; Dana</p><div class="progress"><i></i></div></div><span class="time">0:00</span></li>
+        <li class="track" data-yt="g2F7mgRItrA"><button class="play" aria-label="Play Afrobeats 1 : 60 Minutes × 60 YOM"></button><div><h4>Afrobeats 1️⃣ : 60 Minutes × 60 YOM</h4><p>Kwara &amp; Dana</p><div class="progress"><i></i></div></div><span class="time">0:00</span></li>
+        <li class="track" data-yt="lp40kqtZ9oI"><button class="play" aria-label="Play Best Gospel Mix | Excess Love | Way Maker | I Testify | Unchangeable | Imela | Omemma"></button><div><h4>Best Gospel Mix | Excess Love | Way Maker | I Testify | Unchangeable | Imela | Omemma</h4><p>DJ Malman</p><div class="progress"><i></i></div></div><span class="time">0:00</span></li>
+      </ul>
+    </section>
+
+    <!-- VIDEO: swap the ID inside each embed URL -->
+    <section class="panel" id="music">
+      <div class="video-grid">
+        <article class="video-card">
+          <div class="ratio"><iframe class="yt-video" src="https://www.youtube-nocookie.com/embed/D7Vk6L5k2cM?enablejsapi=1&amp;rel=0&amp;playsinline=1" title="1. Love FM : Kenyan" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe></div>
+          <h4>1. Love FM : Kenyan</h4><p>Kwara &amp; Dana</p>
+        </article>
+        <article class="video-card">
+          <div class="ratio"><iframe class="yt-video" src="https://www.youtube-nocookie.com/embed/g2F7mgRItrA?enablejsapi=1&amp;rel=0&amp;playsinline=1" title="Afrobeats 1 : 60 Minutes × 60 YOM" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe></div>
+          <h4>Afrobeats 1️⃣ : 60 Minutes × 60 YOM</h4><p>Kwara &amp; Dana</p>
+        </article>
+        <article class="video-card">
+          <div class="ratio"><iframe class="yt-video" src="https://www.youtube-nocookie.com/embed/lp40kqtZ9oI?enablejsapi=1&amp;rel=0&amp;playsinline=1" title="Best Gospel Mix | Excess Love | Way Maker | I Testify | Unchangeable | Imela | Omemma" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe></div>
+          <h4>Best Gospel Mix | Excess Love | Way Maker | I Testify | Unchangeable | Imela | Omemma</h4><p>DJ Malman</p>
+        </article>
+      </div>
+    </section>
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>

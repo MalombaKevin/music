@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>KWM — Kevin William Malomba</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="header">
+    <a href="index.html" class="brand"><span class="brand-mark">K&amp;D<img src="images/kwara-dana.jpg" alt="" onerror="this.remove()"></span> Kwara &amp; Dana</a>
+    <nav class="nav"></nav>
+  </header>
+
+  <main class="artist kwm">
+    <div class="artist-head">
+      <div class="artist-id">
+        <div class="avatar"><span>KWM</span><img src="images/kevin.jpg" alt="Kevin William Malomba" onerror="this.remove()"></div>
+        <div>
+          <span class="eyebrow">Kevin William Malomba</span>
+          <h1 class="title">KWM</h1>
+        </div>
+      </div>
+      <div class="toggle" data-tab="audio" style="--n:3">
+        <span class="pill"></span>
+        <button class="on" data-tab="audio">Music</button>
+        <button data-tab="music">Video</button>
+        <button data-tab="custom">Custom Videos</button>
+      </div>
+    </div>
+
+    <!-- MUSIC: each data-yt is a YouTube video ID played as audio only -->
+    <section class="panel show" id="audio">
+      <ul class="tracks">
+        <li class="track" data-yt="D7Vk6L5k2cM"><button class="play" aria-label="Play Love FM : Kenyan"></button><div><h4>1. Love FM : Kenyan</h4><p>Kwara &amp; Dana</p><div class="progress"><i></i></div></div><span class="time">0:00</span></li>
+        <li class="track" data-yt="g2F7mgRItrA"><button class="play" aria-label="Play Afrobeats 1 : 60 Minutes × 60 YOM"></button><div><h4>Afrobeats 1️⃣ : 60 Minutes × 60 YOM</h4><p>Kwara &amp; Dana</p><div class="progress"><i></i></div></div><span class="time">0:00</span></li>
+        <li class="track" data-yt="lp40kqtZ9oI"><button class="play" aria-label="Play Best Gospel Mix | Excess Love | Way Maker | I Testify | Unchangeable | Imela | Omemma"></button><div><h4>Best Gospel Mix | Excess Love | Way Maker | I Testify | Unchangeable | Imela | Omemma</h4><p>DJ Malman</p><div class="progress"><i></i></div></div><span class="time">0:00</span></li>
+      </ul>
+    </section>
+
+    <!-- VIDEO: swap the ID inside each embed URL -->
+    <section class="panel" id="music">
+      <div class="video-grid">
+        <article class="video-card">
+          <div class="ratio"><iframe class="yt-video" src="https://www.youtube-nocookie.com/embed/D7Vk6L5k2cM?enablejsapi=1&amp;rel=0&amp;playsinline=1" title="1. Love FM : Kenyan" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe></div>
+          <h4>1. Love FM : Kenyan</h4><p>Kwara &amp; Dana</p>
+        </article>
+        <article class="video-card">
+          <div class="ratio"><iframe class="yt-video" src="https://www.youtube-nocookie.com/embed/g2F7mgRItrA?enablejsapi=1&amp;rel=0&amp;playsinline=1" title="Afrobeats 1 : 60 Minutes × 60 YOM" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe></div>
+          <h4>Afrobeats 1️⃣ : 60 Minutes × 60 YOM</h4><p>Kwara &amp; Dana</p>
+        </article>
+        <article class="video-card">
+          <div class="ratio"><iframe class="yt-video" src="https://www.youtube-nocookie.com/embed/lp40kqtZ9oI?enablejsapi=1&amp;rel=0&amp;playsinline=1" title="Best Gospel Mix | Excess Love | Way Maker | I Testify | Unchangeable | Imela | Omemma" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe></div>
+          <h4>Best Gospel Mix | Excess Love | Way Maker | I Testify | Unchangeable | Imela | Omemma</h4><p>DJ Malman</p>
+        </article>
+      </div>
+    </section>
+
+    <!-- CUSTOM VIDEOS: add video-cards here like the Video tab -->
+    <section class="panel" id="custom">
+      <div class="empty-card">
+        <h3>Custom Videos</h3>
+        <p>Want a custom video made for you? Get in touch.</p>
+        <button class="btn" type="button" data-open-chat>Chat with us</button>
+      </div>
+    </section>
+  </main>
+
+  <!-- Floating chat button + WhatsApp-style modal (KWM page only) -->
+  <button class="chat-fab" type="button" aria-label="Chat with the developer" aria-haspopup="dialog" data-open-chat>
+    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 3C6.5 3 2 6.9 2 11.7c0 2.4 1.1 4.6 3 6.2L4.3 21l3.6-1.8c1.3.4 2.7.7 4.1.7 5.5 0 10-3.9 10-8.7S17.5 3 12 3z"/></svg>
+  </button>
+
+  <div class="chat-modal" role="dialog" aria-modal="true" aria-labelledby="chat-name" hidden>
+    <div class="chat-window">
+      <div class="chat-head">
+        <div class="chat-av">KM</div>
+        <div class="chat-who">
+          <strong id="chat-name">Kevin Malomba</strong>
+          <small>Developer</small>
+        </div>
+        <button class="chat-close" type="button" aria-label="Close chat">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg>
+        </button>
+      </div>
+
+      <div class="chat-body">
+        <div class="bubble" aria-live="polite">
+          <span class="bubble-text"></span><span class="caret"></span>
+          <span class="bubble-meta"><span class="bubble-time"></span>
+            <svg viewBox="0 0 16 11" fill="currentColor"><path d="M11.1.7 5.2 7.5 2.6 5 1.5 6.1l3.8 3.7L12.2 1.8zM14.4.7 8.5 7.5l-.8-.8-1.1 1.2 2 1.9L15.5 1.8z"/></svg>
+          </span>
+        </div>
+      </div>
+
+      <div class="chat-foot">
+        <a href="mailto:kevinmalomba@gmail.com" aria-label="Email kevinmalomba@gmail.com" title="kevinmalomba@gmail.com">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg>
+        </a>
+        <a href="https://wa.me/25475970044" target="_blank" rel="noopener" aria-label="WhatsApp +25475970044" title="+25475970044" class="wa">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.5 14.4c-.3-.1-1.8-.9-2-1-.3-.1-.5-.1-.7.1l-.9 1.1c-.2.2-.3.2-.6.1-.3-.1-1.3-.5-2.4-1.5-.9-.8-1.5-1.8-1.7-2.1-.2-.3 0-.5.1-.6l.4-.5.3-.5c.1-.2 0-.4 0-.5l-.9-2.2c-.2-.6-.5-.5-.7-.5h-.6c-.2 0-.5.1-.8.4-.3.3-1 1-1 2.5s1.1 2.9 1.2 3.1c.1.2 2.1 3.2 5.1 4.5 2.5 1 3 .8 3.6.7.6-.1 1.8-.7 2-1.5.3-.7.3-1.3.2-1.5-.1-.1-.3-.2-.6-.3zM12 21.8c-1.8 0-3.5-.5-5-1.4l-.4-.2-3.7 1 1-3.6-.2-.4C2.7 15.6 2.2 13.8 2.2 12 2.2 6.6 6.6 2.2 12 2.2c2.6 0 5.1 1 6.9 2.9 1.8 1.8 2.9 4.3 2.9 6.9 0 5.4-4.4 9.8-9.8 9.8zM20.5 3.5C18.2 1.2 15.2 0 12 0 5.4 0 0 5.4 0 12c0 2.1.6 4.2 1.6 6L0 24l6.2-1.6c1.8 1 3.8 1.5 5.8 1.5 6.6 0 12-5.4 12-12 0-3.2-1.2-6.2-3.5-8.4z"/></svg>
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
