@@ -250,6 +250,25 @@ window.onYouTubeIframeAPIReady = () => {
   }
 };
 
+// ================= Full View button (home video) =================
+document.querySelectorAll('[data-fullview]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const frame = document.getElementById(btn.dataset.fullview);
+    const player = players.find(p => p.getIframe && p.getIframe() === frame);
+    try { player.playVideo(); } catch (_) { /* player not ready yet */ }
+    const enter = frame.requestFullscreen || frame.webkitRequestFullscreen;
+    if (enter) {
+      Promise.resolve(enter.call(frame))
+        .then(() => screen.orientation && screen.orientation.lock && screen.orientation.lock('landscape'))
+        .catch(() => {});
+    } else {
+      // iPhone Safari can't make an iframe fullscreen → open the video on YouTube instead
+      const id = frame.src.split('/embed/')[1].split('?')[0];
+      window.open(`https://www.youtube.com/watch?v=${id}`, '_blank');
+    }
+  });
+});
+
 // ================= Chat modal (KWM page) =================
 const chatModal = document.querySelector('.chat-modal');
 if (chatModal) {
