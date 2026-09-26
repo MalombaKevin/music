@@ -221,6 +221,8 @@ window.onYouTubeIframeAPIReady = () => {
         },
       },
     });
+    const vc = document.querySelector(`[data-vc="${frame.id}"]`);
+    if (vc) initVideoControls(p, vc);
     if (cover) {
       cover.addEventListener('click', () => {
         cover.classList.add('hidden');
@@ -254,24 +256,94 @@ window.onYouTubeIframeAPIReady = () => {
   }
 };
 
-// ================= Full View button (home video) =================
+// ================= Full View (home video) =================
+function enterFullView(frame) {
+  const box = frame.parentElement; // .ratio: player + our controls
+  const player = players.find(p => p.getIframe && p.getIframe() === frame);
+  try { player.playVideo(); } catch (_) { /* player not ready yet */ }
+  const enter = box.requestFullscreen || box.webkitRequestFullscreen;
+  if (enter) {
+    Promise.resolve(enter.call(box))
+      .then(() => screen.orientation && screen.orientation.lock && screen.orientation.lock('landscape'))
+      .catch(() => {});
+  } else {
+    // iPhone Safari has no fullscreen for page elements → open the video on YouTube instead
+    const id = frame.src.split('/embed/')[1].split('?')[0];
+    window.open(`https://www.youtube.com/watch?v=${id}`, '_blank');
+  }
+}
+function toggleFullView(frame) {
+  const fsEl = document.fullscreenElement || document.webkitFullscreenElement;
+  if (fsEl) (document.exitFullscreen || document.webkitExitFullscreen).call(document);
+  else enterFullView(frame);
+}
 document.querySelectorAll('[data-fullview]').forEach(btn => {
-  btn.addEventListener('click', () => {
-    const frame = document.getElementById(btn.dataset.fullview);
-    const player = players.find(p => p.getIframe && p.getIframe() === frame);
-    try { player.playVideo(); } catch (_) { /* player not ready yet */ }
-    const enter = frame.requestFullscreen || frame.webkitRequestFullscreen;
-    if (enter) {
-      Promise.resolve(enter.call(frame))
-        .then(() => screen.orientation && screen.orientation.lock && screen.orientation.lock('landscape'))
-        .catch(() => {});
-    } else {
-      // iPhone Safari can't make an iframe fullscreen → open the video on YouTube instead
-      const id = frame.src.split('/embed/')[1].split('?')[0];
-      window.open(`https://www.youtube.com/watch?v=${id}`, '_blank');
-    }
-  });
+  btn.addEventListener('click', () => enterFullView(document.getElementById(btn.dataset.fullview)));
 });
+
+// ================= Custom video controls (home video) =================
+const VC_ICONS = {
+  play: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>',
+  pause: '<svg viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/></svg>',
+  vol: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H2v6h4l5 4z" fill="currentColor"/><path d="M15.5 8.5a5 5 0 0 1 0 7M19 5a10 10 0 0 1 0 14"/></svg>',
+  muted: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H2v6h4l5 4z" fill="currentColor"/><path d="m22 9-6 6M16 9l6 6"/></svg>',
+  fs: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg>',
+};
+
+function initVideoControls(p, vc) {
+  const $ = sel => vc.querySelector(sel);
+  const playBtn = $('.vc-play'), muteBtn = $('.vc-mute'), seek = $('.vc-seek'), fill = $('.vc-seek i'), time = $('.vc-time');
+  playBtn.innerHTML = VC_ICONS.pause;
+  muteBtn.innerHTML = VC_ICONS.vol;
+  $('.vc-fs').innerHTML = VC_ICONS.fs;
+  let seeking = false, hideT, loop;
+
+  const render = () => {
+    const d = p.getDuration() || 0, t = p.getCurrentTime() || 0;
+    if (!seeking) fill.style.width = d ? (t / d) * 100 + '%' : '0';
+    time.textContent = `${fmt(t)} / ${fmt(d)}`;
+  };
+  const show = () => {
+    vc.classList.add('show'); vc.classList.remove('idle');
+    clearTimeout(hideT);
+    hideT = setTimeout(() => { if (!seeking) { vc.classList.remove('show'); vc.classList.add('idle'); } }, 2500);
+  };
+  const toggle = () => (p.getPlayerState() === 1 ? p.pauseVideo() : p.playVideo());
+
+  // tap/click on the picture: first tap on a phone shows the controls, otherwise play/pause
+  $('.vc-hit').addEventListener('click', e => {
+    if (e.pointerType === 'touch' && !vc.classList.contains('show')) return show();
+    toggle(); show();
+  });
+  $('.vc-hit').addEventListener('dblclick', () => toggleFullView(p.getIframe()));
+  vc.addEventListener('pointermove', show);
+  playBtn.addEventListener('click', () => { toggle(); show(); });
+  muteBtn.addEventListener('click', () => {
+    if (p.isMuted()) { p.unMute(); muteBtn.innerHTML = VC_ICONS.vol; muteBtn.setAttribute('aria-label', 'Mute'); }
+    else { p.mute(); muteBtn.innerHTML = VC_ICONS.muted; muteBtn.setAttribute('aria-label', 'Unmute'); }
+    show();
+  });
+  $('.vc-fs').addEventListener('click', () => toggleFullView(p.getIframe()));
+
+  // seek bar: click or drag
+  const ratioAt = e => { const r = seek.getBoundingClientRect(); return Math.min(1, Math.max(0, (e.clientX - r.left) / r.width)); };
+  seek.addEventListener('pointerdown', e => { seeking = true; seek.setPointerCapture(e.pointerId); fill.style.width = ratioAt(e) * 100 + '%'; show(); });
+  seek.addEventListener('pointermove', e => { if (seeking) { fill.style.width = ratioAt(e) * 100 + '%'; show(); } });
+  seek.addEventListener('pointerup', e => { if (!seeking) return; seeking = false; p.seekTo(ratioAt(e) * p.getDuration(), true); render(); });
+  seek.addEventListener('pointercancel', () => { seeking = false; render(); });
+  seek.addEventListener('keydown', e => {
+    if (!['ArrowLeft', 'ArrowRight'].includes(e.key)) return;
+    e.preventDefault(); p.seekTo(p.getCurrentTime() + (e.key === 'ArrowRight' ? 5 : -5), true); render(); show();
+  });
+
+  p.addEventListener('onStateChange', e => {
+    playBtn.innerHTML = e.data === 1 ? VC_ICONS.pause : VC_ICONS.play;
+    playBtn.setAttribute('aria-label', e.data === 1 ? 'Pause' : 'Play');
+    clearInterval(loop);
+    if (e.data === 1) { loop = setInterval(render, 250); show(); }
+    render();
+  });
+}
 
 // ================= Chat modal (KWM page) =================
 const chatModal = document.querySelector('.chat-modal');

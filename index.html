@@ -19,8 +19,19 @@
 
     <div class="video-frame">
       <div class="ratio">
-        <iframe id="home-video" class="yt-video" src="https://www.youtube-nocookie.com/embed/oWj7zgFu-50?enablejsapi=1&amp;rel=0&amp;playsinline=1" title="Happy 60th" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
-        <!-- Cover over the YouTube player: hides "Watch on YouTube" / "Copy link" before play and while paused -->
+        <iframe id="home-video" class="yt-video yt-bare" src="https://www.youtube-nocookie.com/embed/oWj7zgFu-50?enablejsapi=1&amp;controls=0&amp;fs=0&amp;disablekb=1&amp;iv_load_policy=3&amp;rel=0&amp;playsinline=1" title="Happy 60th" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+        <!-- Custom controls: YouTube's own UI (logo, copy link, Watch on YouTube) never receives hover/taps -->
+        <div class="vc" data-vc="home-video">
+          <button class="vc-hit" type="button" aria-label="Play / pause"></button>
+          <div class="vc-bar">
+            <button class="vc-btn vc-play" type="button" aria-label="Pause"></button>
+            <span class="vc-time">0:00 / 0:00</span>
+            <div class="vc-seek" role="slider" aria-label="Seek" tabindex="0"><i></i></div>
+            <button class="vc-btn vc-mute" type="button" aria-label="Mute"></button>
+            <button class="vc-btn vc-fs" type="button" aria-label="Full view"></button>
+          </div>
+        </div>
+        <!-- Cover before play and while paused -->
         <button class="video-cover" type="button" data-cover="home-video" aria-label="Play Happy 60th"
                 style="background-image: url(https://i.ytimg.com/vi/oWj7zgFu-50/maxresdefault.jpg)">
           <span class="cover-play"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></span>
