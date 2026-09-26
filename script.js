@@ -3,20 +3,23 @@ const ICONS = {
   home: '<path d="M3 10.5 12 3l9 7.5V21h-6v-6H9v6H3z"/>',
   kwara: '<circle cx="8" cy="18" r="3"/><path d="M11 18V5l9-2v12"/><circle cx="17" cy="15" r="3"/>',
   dana: '<rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v4"/>',
-  discover: '<circle cx="12" cy="12" r="9"/><path d="m15.5 8.5-2 5-5 2 2-5z"/>',
+  // radio broadcast: centre dot + signal waves that pulse outwards (animated in CSS)
+  vibe: '<circle class="sig-dot" cx="12" cy="12" r="2" fill="currentColor"/>' +
+        '<path class="sig sig-1" d="M8.5 8.5a5 5 0 0 0 0 7M15.5 8.5a5 5 0 0 1 0 7"/>' +
+        '<path class="sig sig-2" d="M5.6 5.6a9 9 0 0 0 0 12.8M18.4 5.6a9 9 0 0 1 0 12.8"/>',
 };
 const NAV = [
   { href: 'index.html', label: 'Home', icon: 'home' },
   { href: 'kwara.html', label: 'Kwara', icon: 'kwara', img: 'images/kwara.jpg' },
   { href: 'dana.html', label: 'Dana', icon: 'dana', img: 'images/dana.jpg' },
-  { href: 'discover.html', label: 'KWM', icon: 'discover', img: 'images/kevin.jpg', initials: 'KM' },
+  { href: 'discover.html', label: 'Vibe', icon: 'vibe' },
 ];
 
 // Works with and without ".html" in the URL (vercel.json has cleanUrls on)
 let page = location.pathname.split('/').pop() || 'index.html';
 if (!page.endsWith('.html')) page += '.html';
 const svg = key =>
-  `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${ICONS[key]}</svg>`;
+  `<svg class="ico-${key}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${ICONS[key]}</svg>`;
 
 // Artist items get a circular image (falls back to the initial if the image is missing)
 const avatar = n =>
@@ -343,68 +346,6 @@ function initVideoControls(p, vc) {
     if (e.data === 1) { loop = setInterval(render, 250); show(); }
     render();
   });
-}
-
-// ================= Chat modal (KWM page) =================
-const chatModal = document.querySelector('.chat-modal');
-if (chatModal) {
-  const GREETINGS = [
-    'Hi there, I hope you are well 👋',   // English
-    'Habari, natumaini uko salama 👋',    // Swahili
-    'Misawa, ageno ni idhi maber 👋',     // Dholuo
-    'Hi there, I hope you are well 👋',   // back to English (stays)
-  ];
-  const SLOT = 8000, TYPE = 3000, ERASE = 1000; // each greeting takes 8s
-  const textEl = chatModal.querySelector('.bubble-text');
-  const caret = chatModal.querySelector('.caret');
-  const fab = document.querySelector('.chat-fab');
-  let run = 0;
-
-  const wait = ms => new Promise(r => setTimeout(r, ms));
-
-  async function typeGreetings(id) {
-    for (let g = 0; g < GREETINGS.length; g++) {
-      const chars = Array.from(GREETINGS[g]); // keeps the emoji intact
-      for (let i = 1; i <= chars.length; i++) {
-        if (id !== run) return;
-        textEl.textContent = chars.slice(0, i).join('');
-        await wait(TYPE / chars.length);
-      }
-      if (g === GREETINGS.length - 1) break; // final English greeting stays
-      await wait(SLOT - TYPE - ERASE);
-      for (let i = chars.length - 1; i >= 0; i--) {
-        if (id !== run) return;
-        textEl.textContent = chars.slice(0, i).join('');
-        await wait(ERASE / chars.length);
-      }
-    }
-    caret.hidden = true;
-  }
-
-  function openChat() {
-    chatModal.hidden = false;
-    requestAnimationFrame(() => chatModal.classList.add('open'));
-    fab.classList.add('hide');
-    chatModal.querySelector('.bubble-time').textContent =
-      new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-    textEl.textContent = '';
-    caret.hidden = false;
-    typeGreetings(++run);
-    chatModal.querySelector('.chat-close').focus();
-  }
-
-  function closeChat() {
-    run++; // stops the typing loop
-    chatModal.classList.remove('open');
-    fab.classList.remove('hide');
-    setTimeout(() => { chatModal.hidden = true; }, 300);
-    fab.focus();
-  }
-
-  document.querySelectorAll('[data-open-chat]').forEach(b => b.addEventListener('click', openChat));
-  chatModal.querySelector('.chat-close').addEventListener('click', closeChat);
-  chatModal.addEventListener('click', e => { if (e.target === chatModal) closeChat(); });
-  document.addEventListener('keydown', e => { if (e.key === 'Escape' && !chatModal.hidden) closeChat(); });
 }
 
 // ================= View-source deterrent =================
