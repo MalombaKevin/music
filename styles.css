@@ -97,6 +97,15 @@ main {
 }
 .video-frame iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
 
+/* Home video: the player is made taller than the box, so YouTube letterboxes the video and puts its
+   top bar (title, channel, account) and bottom bar (copy link, logo, Watch on YouTube) in the extra
+   space, which the box crops off. The video itself stays fully visible. */
+.video-frame iframe.yt-crop { --crop: 72px; top: calc(var(--crop) * -1); height: calc(100% + var(--crop) * 2); }
+/* Full View portrait: YouTube uses bigger bars, and there's plenty of black space to crop into */
+@media (orientation: portrait) {
+  .video-frame .ratio:fullscreen iframe.yt-crop, .video-frame .ratio:-webkit-full-screen iframe.yt-crop { --crop: 140px; }
+}
+
 /* Full View: the video box (YouTube player + our Minimize button) goes fullscreen */
 .video-frame .ratio:fullscreen { aspect-ratio: auto; width: 100vw; height: 100vh; border-radius: 0; }
 .video-frame .ratio:-webkit-full-screen { aspect-ratio: auto; width: 100vw; height: 100vh; border-radius: 0; }
