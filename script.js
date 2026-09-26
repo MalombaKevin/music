@@ -1,3 +1,9 @@
+// ================= Laptop / desktop block =================
+// Same rule as the CSS: a mouse/trackpad as the main pointer means laptop or desktop.
+const deviceBlocked = matchMedia('(hover: hover) and (pointer: fine)').matches;
+const deviceUrl = document.querySelector('.device-url');
+if (deviceUrl) deviceUrl.textContent = location.host;
+
 // ================= Navigation =================
 const ICONS = {
   home: '<path d="M3 10.5 12 3l9 7.5V21h-6v-6H9v6H3z"/>',
@@ -10,8 +16,8 @@ const ICONS = {
 };
 const NAV = [
   { href: 'index.html', label: 'Home', icon: 'home' },
-  { href: 'kwara.html', label: 'Kwara', icon: 'kwara', img: 'images/kwara.jpg' },
-  { href: 'dana.html', label: 'Dana', icon: 'dana', img: 'images/dana.jpg' },
+  { href: 'kwara.html', label: 'Kwara', icon: 'kwara', img: 'images/kwara.png' },
+  { href: 'dana.html', label: 'Dana', icon: 'dana', img: 'images/dana.png' },
   { href: 'discover.html', label: 'Vibe', icon: 'vibe' },
 ];
 
@@ -199,12 +205,12 @@ function onAudioState(e) {
 }
 
 // YouTube refuses to play embeds on pages opened as file:// (no Referer → "Error 153 / Watch on YouTube")
-if (location.protocol === 'file:' && (tracks.length || videoFrames.length)) {
+if (location.protocol === 'file:' && !deviceBlocked && (tracks.length || videoFrames.length)) {
   setTimeout(() => showToast('Open via a web server (e.g. Live Server) — YouTube blocks file:// pages'), 800);
 }
 
 // Load the YouTube IFrame API only where needed
-if (tracks.length || videoFrames.length) {
+if ((tracks.length || videoFrames.length) && !deviceBlocked) { // no player on blocked devices
   const s = document.createElement('script');
   s.src = 'https://www.youtube.com/iframe_api';
   document.head.appendChild(s);
@@ -213,25 +219,9 @@ if (tracks.length || videoFrames.length) {
 window.onYouTubeIframeAPIReady = () => {
   // Visible videos
   videoFrames.forEach(frame => {
-    const cover = document.querySelector(`[data-cover="${frame.id}"]`);
     const p = new YT.Player(frame, {
-      events: {
-        onStateChange: e => {
-          if (e.data === 1) pauseOthers(p);
-          // custom cover: hidden while playing, back on pause/end (hides YouTube's overlay buttons)
-          if (cover && (e.data === 1 || e.data === 3)) cover.classList.add('hidden');
-          if (cover && (e.data === 2 || e.data === 0)) cover.classList.remove('hidden');
-        },
-      },
+      events: { onStateChange: e => { if (e.data === 1) pauseOthers(p); } },
     });
-    const vc = document.querySelector(`[data-vc="${frame.id}"]`);
-    if (vc) initVideoControls(p, vc);
-    if (cover) {
-      cover.addEventListener('click', () => {
-        cover.classList.add('hidden');
-        try { p.playVideo(); } catch (_) { /* not ready yet → YouTube's own play button is underneath */ }
-      });
-    }
     players.push(p);
   });
 
@@ -259,94 +249,24 @@ window.onYouTubeIframeAPIReady = () => {
   }
 };
 
-// ================= Full View (home video) =================
-function enterFullView(frame) {
-  const box = frame.parentElement; // .ratio: player + our controls
-  const player = players.find(p => p.getIframe && p.getIframe() === frame);
-  try { player.playVideo(); } catch (_) { /* player not ready yet */ }
-  const enter = box.requestFullscreen || box.webkitRequestFullscreen;
-  if (enter) {
-    Promise.resolve(enter.call(box))
-      .then(() => screen.orientation && screen.orientation.lock && screen.orientation.lock('landscape'))
-      .catch(() => {});
-  } else {
-    // iPhone Safari has no fullscreen for page elements → open the video on YouTube instead
-    const id = frame.src.split('/embed/')[1].split('?')[0];
-    window.open(`https://www.youtube.com/watch?v=${id}`, '_blank');
-  }
-}
-function toggleFullView(frame) {
-  const fsEl = document.fullscreenElement || document.webkitFullscreenElement;
-  if (fsEl) (document.exitFullscreen || document.webkitExitFullscreen).call(document);
-  else enterFullView(frame);
-}
+// ================= Full View button (home video) =================
 document.querySelectorAll('[data-fullview]').forEach(btn => {
-  btn.addEventListener('click', () => enterFullView(document.getElementById(btn.dataset.fullview)));
+  btn.addEventListener('click', () => {
+    const frame = document.getElementById(btn.dataset.fullview);
+    const player = players.find(p => p.getIframe && p.getIframe() === frame);
+    try { player.playVideo(); } catch (_) { /* player not ready yet */ }
+    const enter = frame.requestFullscreen || frame.webkitRequestFullscreen;
+    if (enter) {
+      Promise.resolve(enter.call(frame))
+        .then(() => screen.orientation && screen.orientation.lock && screen.orientation.lock('landscape'))
+        .catch(() => {});
+    } else {
+      // iPhone Safari can't make an iframe fullscreen → open the video on YouTube instead
+      const id = frame.src.split('/embed/')[1].split('?')[0];
+      window.open(`https://www.youtube.com/watch?v=${id}`, '_blank');
+    }
+  });
 });
-
-// ================= Custom video controls (home video) =================
-const VC_ICONS = {
-  play: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>',
-  pause: '<svg viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/></svg>',
-  vol: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H2v6h4l5 4z" fill="currentColor"/><path d="M15.5 8.5a5 5 0 0 1 0 7M19 5a10 10 0 0 1 0 14"/></svg>',
-  muted: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H2v6h4l5 4z" fill="currentColor"/><path d="m22 9-6 6M16 9l6 6"/></svg>',
-  fs: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg>',
-};
-
-function initVideoControls(p, vc) {
-  const $ = sel => vc.querySelector(sel);
-  const playBtn = $('.vc-play'), muteBtn = $('.vc-mute'), seek = $('.vc-seek'), fill = $('.vc-seek i'), time = $('.vc-time');
-  playBtn.innerHTML = VC_ICONS.pause;
-  muteBtn.innerHTML = VC_ICONS.vol;
-  $('.vc-fs').innerHTML = VC_ICONS.fs;
-  let seeking = false, hideT, loop;
-
-  const render = () => {
-    const d = p.getDuration() || 0, t = p.getCurrentTime() || 0;
-    if (!seeking) fill.style.width = d ? (t / d) * 100 + '%' : '0';
-    time.textContent = `${fmt(t)} / ${fmt(d)}`;
-  };
-  const show = () => {
-    vc.classList.add('show'); vc.classList.remove('idle');
-    clearTimeout(hideT);
-    hideT = setTimeout(() => { if (!seeking) { vc.classList.remove('show'); vc.classList.add('idle'); } }, 2500);
-  };
-  const toggle = () => (p.getPlayerState() === 1 ? p.pauseVideo() : p.playVideo());
-
-  // tap/click on the picture: first tap on a phone shows the controls, otherwise play/pause
-  $('.vc-hit').addEventListener('click', e => {
-    if (e.pointerType === 'touch' && !vc.classList.contains('show')) return show();
-    toggle(); show();
-  });
-  $('.vc-hit').addEventListener('dblclick', () => toggleFullView(p.getIframe()));
-  vc.addEventListener('pointermove', show);
-  playBtn.addEventListener('click', () => { toggle(); show(); });
-  muteBtn.addEventListener('click', () => {
-    if (p.isMuted()) { p.unMute(); muteBtn.innerHTML = VC_ICONS.vol; muteBtn.setAttribute('aria-label', 'Mute'); }
-    else { p.mute(); muteBtn.innerHTML = VC_ICONS.muted; muteBtn.setAttribute('aria-label', 'Unmute'); }
-    show();
-  });
-  $('.vc-fs').addEventListener('click', () => toggleFullView(p.getIframe()));
-
-  // seek bar: click or drag
-  const ratioAt = e => { const r = seek.getBoundingClientRect(); return Math.min(1, Math.max(0, (e.clientX - r.left) / r.width)); };
-  seek.addEventListener('pointerdown', e => { seeking = true; seek.setPointerCapture(e.pointerId); fill.style.width = ratioAt(e) * 100 + '%'; show(); });
-  seek.addEventListener('pointermove', e => { if (seeking) { fill.style.width = ratioAt(e) * 100 + '%'; show(); } });
-  seek.addEventListener('pointerup', e => { if (!seeking) return; seeking = false; p.seekTo(ratioAt(e) * p.getDuration(), true); render(); });
-  seek.addEventListener('pointercancel', () => { seeking = false; render(); });
-  seek.addEventListener('keydown', e => {
-    if (!['ArrowLeft', 'ArrowRight'].includes(e.key)) return;
-    e.preventDefault(); p.seekTo(p.getCurrentTime() + (e.key === 'ArrowRight' ? 5 : -5), true); render(); show();
-  });
-
-  p.addEventListener('onStateChange', e => {
-    playBtn.innerHTML = e.data === 1 ? VC_ICONS.pause : VC_ICONS.play;
-    playBtn.setAttribute('aria-label', e.data === 1 ? 'Pause' : 'Play');
-    clearInterval(loop);
-    if (e.data === 1) { loop = setInterval(render, 250); show(); }
-    render();
-  });
-}
 
 // ================= View-source deterrent =================
 // Blocks right-click and the common "view source / dev tools / save page" shortcuts.

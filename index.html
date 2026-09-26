@@ -4,9 +4,37 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>Kwara &amp; Dana Media</title>
+  <!-- Social share preview -->
+  <meta name="description" content="Music, stories and sound from Kwara &amp; Dana. Press play and step inside.">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Kwara &amp; Dana">
+  <meta property="og:title" content="Kwara &amp; Dana">
+  <meta property="og:description" content="Music, stories and sound from Kwara &amp; Dana. Press play and step inside.">
+  <meta property="og:url" content="https://kwaradana.vercel.app/">
+  <meta property="og:image" content="https://kwaradana.vercel.app/images/kwaradana-share.jpg">
+  <meta property="og:image:secure_url" content="https://kwaradana.vercel.app/images/kwaradana-share.jpg">
+  <meta property="og:image:type" content="image/jpeg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="875">
+  <meta property="og:image:alt" content="Kwara and Dana, illustrated on a parchment scroll">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Kwara &amp; Dana">
+  <meta name="twitter:description" content="Music, stories and sound from Kwara &amp; Dana. Press play and step inside.">
+  <meta name="twitter:image" content="https://kwaradana.vercel.app/images/kwaradana-share.jpg">
+  <!-- /Social share preview -->
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+  <!-- Shown instead of the site on laptops/desktops (mouse or trackpad devices) -->
+  <div class="device-block" role="alert">
+    <div class="device-card">
+      <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="6" y="6" width="22" height="36" rx="4"/><path d="M14 36h6"/><rect x="31" y="16" width="13" height="24" rx="3"/><path d="M36 35h3"/></svg>
+      <h1>Please switch to your phone or tablet</h1>
+      <p>Kwara &amp; Dana is made for mobile. It can&rsquo;t be viewed on a laptop or desktop computer &mdash; open this link on a mobile phone or tablet instead.</p>
+      <span class="device-url"></span>
+    </div>
+  </div>
+
   <header class="header">
     <a href="index.html" class="brand"><span class="brand-mark">K&amp;D<img src="images/kwara-dana.jpg" alt="" onerror="this.remove()"></span> Kwara &amp; Dana</a>
     <nav class="nav"></nav>
@@ -15,27 +43,11 @@
   <main class="hero">
     <span class="eyebrow">Official</span>
     <h1 class="title">Welcome to <span class="title-line"><span class="grad">Kwara &amp; Dana</span> Media</span></h1>
-    <p class="lead">Music, stories and sound — straight from the source. Press play and step inside.</p>
+    <p class="lead"></p>
 
     <div class="video-frame">
       <div class="ratio">
-        <iframe id="home-video" class="yt-video yt-bare" src="https://www.youtube-nocookie.com/embed/oWj7zgFu-50?enablejsapi=1&amp;controls=0&amp;fs=0&amp;disablekb=1&amp;iv_load_policy=3&amp;rel=0&amp;playsinline=1" title="Happy 60th" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
-        <!-- Custom controls: YouTube's own UI (logo, copy link, Watch on YouTube) never receives hover/taps -->
-        <div class="vc" data-vc="home-video">
-          <button class="vc-hit" type="button" aria-label="Play / pause"></button>
-          <div class="vc-bar">
-            <button class="vc-btn vc-play" type="button" aria-label="Pause"></button>
-            <span class="vc-time">0:00 / 0:00</span>
-            <div class="vc-seek" role="slider" aria-label="Seek" tabindex="0"><i></i></div>
-            <button class="vc-btn vc-mute" type="button" aria-label="Mute"></button>
-            <button class="vc-btn vc-fs" type="button" aria-label="Full view"></button>
-          </div>
-        </div>
-        <!-- Cover before play and while paused -->
-        <button class="video-cover" type="button" data-cover="home-video" aria-label="Play Happy 60th"
-                style="background-image: url(https://i.ytimg.com/vi/oWj7zgFu-50/maxresdefault.jpg)">
-          <span class="cover-play"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></span>
-        </button>
+        <iframe id="home-video" class="yt-video" src="https://www.youtube-nocookie.com/embed/oWj7zgFu-50?enablejsapi=1&amp;rel=0&amp;playsinline=1" title="Happy 60th" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
       </div>
     </div>
     <button class="btn-full" type="button" data-fullview="home-video">
