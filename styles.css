@@ -244,16 +244,27 @@ main {
 .kwm .avatar { font-size: 1.3rem; background: linear-gradient(135deg, var(--kwara), var(--dana)); box-shadow: 0 0 0 1px var(--line), 0 20px 50px -15px var(--dana); }
 .kwm .eyebrow { margin-bottom: 4px; }
 .kwm .toggle button.on { color: #0a0a0c; }
-.empty-card {
-  padding: 40px 24px; border-radius: var(--radius); text-align: center;
-  background: var(--surface); border: 1px dashed var(--line);
+/* Custom Videos: scrolling "Coming Soon" marquee (two identical halves → seamless loop) */
+.marquee {
+  overflow: hidden; padding: 28px 0; border-radius: var(--radius);
+  background: var(--surface); border: 1px solid var(--line);
 }
-.empty-card h3 { font-size: 1.4rem; }
-.empty-card p { color: var(--muted); margin: 6px 0 18px; }
-.btn {
-  border: 0; cursor: pointer; padding: 10px 22px; border-radius: 999px;
-  background: var(--c); color: #0a0a0c; font: 600 .9rem 'Inter', sans-serif;
+.marquee-fade {
+  overflow: hidden;
+  -webkit-mask: linear-gradient(90deg, transparent, #000 10%, #000 90%, transparent);
+          mask: linear-gradient(90deg, transparent, #000 10%, #000 90%, transparent);
 }
+.marquee-track { display: flex; width: max-content; animation: marquee 18s linear infinite; }
+.marquee:hover .marquee-track { animation-play-state: paused; }
+.marquee span {
+  display: inline-flex; align-items: center; gap: 40px; padding-right: 40px; white-space: nowrap;
+  font: 700 clamp(2rem, 6vw, 3.6rem) 'Space Grotesk', sans-serif; letter-spacing: -0.02em; text-transform: uppercase;
+  background: linear-gradient(90deg, var(--kwara), var(--accent), var(--dana));
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+}
+.marquee span::after { content: '✦'; color: var(--accent); -webkit-text-fill-color: var(--accent); font-size: .5em; }
+@keyframes marquee { to { transform: translateX(-50%); } }
+@media (prefers-reduced-motion: reduce) { .marquee-track { animation-duration: 60s; } }
 
 /* ---------- Chat FAB + WhatsApp-style modal ---------- */
 .chat-fab {
@@ -402,4 +413,21 @@ body { padding-bottom: calc(var(--nav-h) + 40px + env(safe-area-inset-bottom)); 
   .chat-fab { right: 18px; bottom: calc(var(--nav-h) + 30px + env(safe-area-inset-bottom)); }
   .chat-modal { padding: 14px; padding-bottom: calc(var(--nav-h) + 28px + env(safe-area-inset-bottom)); }
   .toggle button { padding: 8px 6px; white-space: nowrap; font-size: .8rem; }
+
+  /* Artist pages (Kwara, Dana, KWM): no top brand bar; name + toggle stick to the top, only content scrolls */
+  body:has(main.artist) .header { display: none; }
+  main.artist { padding-top: 0; }
+  .artist-head {
+    position: sticky; top: 0; z-index: 40;
+    gap: 12px; margin: 0 -16px; padding: calc(14px + env(safe-area-inset-top)) 16px 12px;
+    background: rgba(10,10,12,.88);
+    backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+    border-bottom: 1px solid var(--line);
+  }
+  .artist-id { gap: 14px; }
+  .artist .avatar { width: 52px; height: 52px; font-size: 1.3rem; }
+  .artist.kwm .avatar { font-size: .85rem; }
+  .artist-id .title { font-size: 1.7rem; }
+  .artist .eyebrow { font-size: .65rem; margin-bottom: 0; }
+  .artist .panel { margin-top: 16px; }
 }
