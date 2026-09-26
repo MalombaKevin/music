@@ -14,12 +14,17 @@
 
   <main class="hero">
     <span class="eyebrow">Official</span>
-    <h1 class="title">Welcome to <span class="grad">Kwara &amp; Dana</span> Media</h1>
+    <h1 class="title">Welcome to <span class="title-line"><span class="grad">Kwara &amp; Dana</span> Media</span></h1>
     <p class="lead">Music, stories and sound — straight from the source. Press play and step inside.</p>
 
     <div class="video-frame">
       <div class="ratio">
         <iframe id="home-video" class="yt-video" src="https://www.youtube-nocookie.com/embed/oWj7zgFu-50?enablejsapi=1&amp;rel=0&amp;playsinline=1" title="Happy 60th" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+        <!-- Cover over the YouTube player: hides "Watch on YouTube" / "Copy link" before play and while paused -->
+        <button class="video-cover" type="button" data-cover="home-video" aria-label="Play Happy 60th"
+                style="background-image: url(https://i.ytimg.com/vi/oWj7zgFu-50/maxresdefault.jpg)">
+          <span class="cover-play"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></span>
+        </button>
       </div>
     </div>
     <button class="btn-full" type="button" data-fullview="home-video">

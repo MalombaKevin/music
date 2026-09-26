@@ -97,9 +97,9 @@ tracks.forEach(track => {
   initSeek(track);
 });
 
-// Progress bar: click or drag to seek (starts the track if it isn't playing yet)
+// Progress bar: seeking only works on the song started with its play button,
+// so scrolling past the other songs can never move their bars by accident
 let dragging = false;
-let pendingSeek = null; // ratio to jump to once a newly started track is playing
 
 function initSeek(track) {
   const bar = track.querySelector('.progress');
@@ -111,23 +111,23 @@ function initSeek(track) {
     return Math.min(1, Math.max(0, (e.clientX - r.left) / r.width));
   };
   const preview = ratio => { bar.querySelector('i').style.width = ratio * 100 + '%'; };
+  const stop = () => { dragging = false; bar.classList.remove('dragging'); };
 
   bar.addEventListener('pointerdown', e => {
-    if (!audioReady) return showToast('Player is loading…');
+    if (current !== track) return; // not the active song → ignore
     dragging = true;
     bar.classList.add('dragging');
     bar.setPointerCapture(e.pointerId);
     preview(ratioAt(e));
   });
   bar.addEventListener('pointermove', e => { if (dragging) preview(ratioAt(e)); });
-  const release = e => {
+  bar.addEventListener('pointerup', e => {
     if (!dragging) return;
-    dragging = false;
-    bar.classList.remove('dragging');
-    seekTo(track, ratioAt(e));
-  };
-  bar.addEventListener('pointerup', release);
-  bar.addEventListener('pointercancel', () => { dragging = false; bar.classList.remove('dragging'); });
+    stop();
+    seekTo(ratioAt(e));
+  });
+  // a vertical swipe that turns into a page scroll cancels the seek
+  bar.addEventListener('pointercancel', () => { stop(); updateProgress(); });
 
   bar.addEventListener('keydown', e => {
     if (current !== track || !['ArrowLeft', 'ArrowRight'].includes(e.key)) return;
@@ -137,15 +137,9 @@ function initSeek(track) {
   });
 }
 
-function seekTo(track, ratio) {
-  if (current !== track) {
-    pendingSeek = ratio;
-    playTrack(track);
-    return;
-  }
+function seekTo(ratio) {
   const d = audioPlayer.getDuration();
   if (d) audioPlayer.seekTo(ratio * d, true);
-  if (audioPlayer.getPlayerState() !== 1) audioPlayer.playVideo();
   updateProgress();
 }
 
@@ -183,10 +177,6 @@ function onAudioState(e) {
     case 1: // playing
       pauseOthers(audioPlayer);
       btn.innerHTML = ICON_PAUSE;
-      if (pendingSeek !== null) {
-        audioPlayer.seekTo(pendingSeek * audioPlayer.getDuration(), true);
-        pendingSeek = null;
-      }
       clearInterval(tick);
       tick = setInterval(updateProgress, 500);
       break;
@@ -220,9 +210,23 @@ if (tracks.length || videoFrames.length) {
 window.onYouTubeIframeAPIReady = () => {
   // Visible videos
   videoFrames.forEach(frame => {
+    const cover = document.querySelector(`[data-cover="${frame.id}"]`);
     const p = new YT.Player(frame, {
-      events: { onStateChange: e => { if (e.data === 1) pauseOthers(p); } },
+      events: {
+        onStateChange: e => {
+          if (e.data === 1) pauseOthers(p);
+          // custom cover: hidden while playing, back on pause/end (hides YouTube's overlay buttons)
+          if (cover && (e.data === 1 || e.data === 3)) cover.classList.add('hidden');
+          if (cover && (e.data === 2 || e.data === 0)) cover.classList.remove('hidden');
+        },
+      },
     });
+    if (cover) {
+      cover.addEventListener('click', () => {
+        cover.classList.add('hidden');
+        try { p.playVideo(); } catch (_) { /* not ready yet → YouTube's own play button is underneath */ }
+      });
+    }
     players.push(p);
   });
 
@@ -330,3 +334,18 @@ if (chatModal) {
   chatModal.addEventListener('click', e => { if (e.target === chatModal) closeChat(); });
   document.addEventListener('keydown', e => { if (e.key === 'Escape' && !chatModal.hidden) closeChat(); });
 }
+
+// ================= View-source deterrent =================
+// Blocks right-click and the common "view source / dev tools / save page" shortcuts.
+// Note: this only deters casual visitors — browsers always let a determined user read the page code.
+document.addEventListener('contextmenu', e => e.preventDefault());
+document.addEventListener('keydown', e => {
+  const k = e.code.replace('Key', '').toLowerCase(); // physical key, so Mac's Option doesn't change it
+  const ctrl = e.ctrlKey || e.metaKey;
+  const blocked =
+    e.key === 'F12' ||
+    (ctrl && e.shiftKey && ['i', 'j', 'c', 'k'].includes(k)) || // dev tools (Windows/Linux)
+    (e.metaKey && e.altKey && ['i', 'j', 'c', 'u'].includes(k)) || // dev tools / source (Mac)
+    (ctrl && !e.shiftKey && ['u', 's'].includes(k));             // view source, save page
+  if (blocked) { e.preventDefault(); e.stopPropagation(); }
+}, true);

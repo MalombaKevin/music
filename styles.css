@@ -97,6 +97,25 @@ main {
 }
 .video-frame iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
 
+/* Custom cover over the home video (shown before play and when paused) */
+.video-cover {
+  position: absolute; inset: 0; z-index: 2; border: 0; padding: 0; cursor: pointer;
+  background: #000 center / cover no-repeat;
+  display: grid; place-items: center;
+  transition: opacity .3s;
+}
+.video-cover::before { content: ''; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(0,0,0,.05), rgba(0,0,0,.35)); }
+.video-cover.hidden { opacity: 0; pointer-events: none; }
+.cover-play {
+  position: relative; width: 72px; height: 72px; border-radius: 50%;
+  display: grid; place-items: center; color: #fff;
+  background: linear-gradient(135deg, var(--kwara), var(--dana));
+  box-shadow: 0 10px 30px -6px rgba(0,0,0,.7), 0 0 0 6px rgba(255,255,255,.15);
+  transition: transform .2s;
+}
+.video-cover:hover .cover-play { transform: scale(1.08); }
+.cover-play svg { width: 30px; height: 30px; margin-left: 3px; }
+
 /* Full View button under the home video (phones only) */
 .btn-full {
   display: none; align-items: center; justify-content: center; gap: 8px;
@@ -192,9 +211,11 @@ main {
 /* seekable progress bar: 10px track, larger invisible hit area, knob on hover/drag */
 .progress {
   position: relative; height: 10px; margin-top: 10px; border-radius: 10px;
-  background: rgba(255,255,255,.12); cursor: pointer; touch-action: none;
+  background: rgba(255,255,255,.12);
+  pointer-events: none; /* inactive songs: bar ignores touches, so scrolling over it is safe */
 }
-.progress::before { content: ''; position: absolute; inset: -9px 0; } /* easier to grab */
+.track.playing .progress { pointer-events: auto; cursor: pointer; touch-action: pan-y; }
+.track.playing .progress::before { content: ''; position: absolute; inset: -9px 0; } /* easier to grab */
 .progress i {
   position: relative; display: block; height: 100%; width: 0; max-width: 100%;
   border-radius: inherit; background: var(--c);
@@ -205,9 +226,7 @@ main {
   box-shadow: 0 0 0 3px color-mix(in srgb, var(--c) 45%, transparent);
   transform: translateY(-50%) scale(0); transition: transform .15s;
 }
-.track.playing .progress i::after,
-.progress:hover i::after,
-.progress.dragging i::after { transform: translateY(-50%) scale(1); }
+.track.playing .progress i::after { transform: translateY(-50%) scale(1); }
 .progress:focus-visible { outline: 2px solid var(--c); outline-offset: 4px; }
 .time { color: var(--muted); font-size: .82rem; font-variant-numeric: tabular-nums; }
 
@@ -429,7 +448,8 @@ body { padding-bottom: calc(var(--nav-h) + 40px + env(safe-area-inset-bottom)); 
   /* Home */
   main.hero { padding-top: calc(20px + env(safe-area-inset-top)); }
   .hero .eyebrow { display: none; }
-  .hero .title { font-size: 2rem; }
+  .hero .title { font-size: min(2rem, 9vw); }
+  .hero .title-line { display: block; white-space: nowrap; } /* "Kwara & Dana Media" on its own line */
   .hero .lead { margin-top: 10px; font-size: .95rem; }
   .video-frame { margin-top: 22px; padding: 0; background: none; box-shadow: none; }
   .btn-full { display: flex; }
@@ -438,6 +458,22 @@ body { padding-bottom: calc(var(--nav-h) + 40px + env(safe-area-inset-bottom)); 
   .duo h3 { font-size: 1.05rem; }
   .duo span { font-size: .72rem; }
   .duo .arrow { font-size: 1.1rem; }
+
+  /* Home fits exactly one screen: no scrolling, video shrinks on short phones */
+  body:has(main.hero) {
+    height: 100dvh; overflow: hidden;
+    display: flex; flex-direction: column;
+    padding-bottom: calc(var(--nav-h) + 22px + env(safe-area-inset-bottom));
+  }
+  main.hero {
+    flex: 1; min-height: 0; width: 100%;
+    display: flex; flex-direction: column; justify-content: center;
+    padding: calc(12px + env(safe-area-inset-top)) 16px 8px;
+  }
+  .hero .video-frame { width: min(100%, calc((100dvh - 430px) * 16 / 9)); margin: 16px auto 0; }
+  .hero .btn-full { width: min(100%, calc((100dvh - 430px) * 16 / 9)); margin: 10px auto 0; padding: 10px; }
+  .hero .duo { margin-top: 12px; }
+  body:has(main.hero) footer { padding: 0 16px; font-size: .7rem; }
 
   /* Artist pages (Kwara, Dana, KWM): name + toggle stick to the top, only content scrolls */
   main.artist { padding-top: 0; }
