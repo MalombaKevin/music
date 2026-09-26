@@ -293,10 +293,24 @@ document.querySelectorAll('[data-fullview]').forEach(btn => {
     }, 0);
   });
 
-  minBtn.addEventListener('click', () => {
-    if (fsElement()) (document.exitFullscreen || document.webkitExitFullscreen).call(document);
-  });
-  const onFsChange = () => { if (fsElement() !== box) { clearTimeout(hideT); minBtn.classList.remove('show'); } };
+  // Leave fullscreen completely (every level), back to the normal page
+  const exitAll = () => {
+    if (!fsElement()) return;
+    Promise.resolve((document.exitFullscreen || document.webkitExitFullscreen).call(document))
+      .then(() => { if (fsElement()) exitAll(); })
+      .catch(() => {});
+  };
+  minBtn.addEventListener('click', exitAll);
+
+  let inFullView = false;
+  const onFsChange = () => {
+    const el = fsElement();
+    // YouTube's own fullscreen button (bottom right) in Full View makes the player fullscreen on top
+    // of our box — treat that exactly like Minimize
+    if (inFullView && el === frame) { inFullView = false; exitAll(); }
+    else inFullView = el === box;
+    if (el !== box) { clearTimeout(hideT); minBtn.classList.remove('show'); }
+  };
   document.addEventListener('fullscreenchange', onFsChange);
   document.addEventListener('webkitfullscreenchange', onFsChange);
 });
