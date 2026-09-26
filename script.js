@@ -249,23 +249,56 @@ window.onYouTubeIframeAPIReady = () => {
   }
 };
 
-// ================= Full View button (home video) =================
+// ================= Full View (home video) =================
+// The video box (player + our Minimize button) goes fullscreen, so the button can sit on top of the video.
+const fsElement = () => document.fullscreenElement || document.webkitFullscreenElement;
+
 document.querySelectorAll('[data-fullview]').forEach(btn => {
+  const frame = document.getElementById(btn.dataset.fullview);
+  const box = frame.parentElement;
+  const minBtn = box.querySelector('.vc-min');
+  let hideT;
+
   btn.addEventListener('click', () => {
-    const frame = document.getElementById(btn.dataset.fullview);
     const player = players.find(p => p.getIframe && p.getIframe() === frame);
     try { player.playVideo(); } catch (_) { /* player not ready yet */ }
-    const enter = frame.requestFullscreen || frame.webkitRequestFullscreen;
+    const enter = box.requestFullscreen || box.webkitRequestFullscreen;
     if (enter) {
-      Promise.resolve(enter.call(frame))
+      Promise.resolve(enter.call(box))
         .then(() => screen.orientation && screen.orientation.lock && screen.orientation.lock('landscape'))
         .catch(() => {});
     } else {
-      // iPhone Safari can't make an iframe fullscreen → open the video on YouTube instead
+      // iPhone Safari has no fullscreen for page elements → open the video on YouTube instead
       const id = frame.src.split('/embed/')[1].split('?')[0];
       window.open(`https://www.youtube.com/watch?v=${id}`, '_blank');
     }
   });
+
+  if (!minBtn) return;
+  const showMin = () => {
+    if (fsElement() !== box) return;
+    minBtn.classList.add('show');
+    clearTimeout(hideT);
+    hideT = setTimeout(() => minBtn.classList.remove('show'), 3000); // no taps for 3s → hide
+  };
+
+  // Taps inside the YouTube player can't be read directly; a tap moves focus into the player,
+  // which blurs this page. Catch that, then hand focus back so the next tap is caught too.
+  window.addEventListener('blur', () => {
+    setTimeout(() => {
+      if (document.activeElement !== frame) return;
+      showMin();
+      frame.blur();
+      window.focus();
+    }, 0);
+  });
+
+  minBtn.addEventListener('click', () => {
+    if (fsElement()) (document.exitFullscreen || document.webkitExitFullscreen).call(document);
+  });
+  const onFsChange = () => { if (fsElement() !== box) { clearTimeout(hideT); minBtn.classList.remove('show'); } };
+  document.addEventListener('fullscreenchange', onFsChange);
+  document.addEventListener('webkitfullscreenchange', onFsChange);
 });
 
 // ================= View-source deterrent =================
