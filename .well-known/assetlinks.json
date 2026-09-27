@@ -3,9 +3,9 @@
     "relation": ["delegate_permission/common.handle_all_urls"],
     "target": {
       "namespace": "android_app",
-      "package_name": "REPLACE_WITH_YOUR_PACKAGE_NAME",
+      "package_name": "app.vercel.kwaradana.twa",
       "sha256_cert_fingerprints": [
-        "REPLACE_WITH_YOUR_SHA256_FINGERPRINT"
+        "B5:1D:FD:E6:4D:99:74:08:E8:64:2B:CC:66:F3:94:B2:BD:4F:ED:EC:5A:17:84:BD:C1:9D:26:09:13:B4:80:54"
       ]
     }
   }
