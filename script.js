@@ -329,3 +329,8 @@ document.addEventListener('keydown', e => {
     (ctrl && !e.shiftKey && ['u', 's'].includes(k));             // view source, save page
   if (blocked) { e.preventDefault(); e.stopPropagation(); }
 }, true);
+
+// Register the service worker so the site installs as a full-screen app
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => navigator.serviceWorker.register('/sw.js').catch(() => {}));
+}
